@@ -2,7 +2,7 @@ name: "DamDama Target Bot"
 
 on:
   schedule:
-    - cron: '0 */4 * * *'   # Har 4 ghantay, bilkul HH:00 par
+    - cron: '0 */2 * * *'   # Har 4 ghantay, bilkul HH:00 par
   workflow_dispatch:
     inputs:
       max_profiles:
@@ -72,4 +72,5 @@ jobs:
           SHEET_WRITE_DELAY: '1.5'
         run: |
           python Scraper.py
+
 
