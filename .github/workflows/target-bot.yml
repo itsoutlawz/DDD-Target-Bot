@@ -69,9 +69,10 @@ jobs:
           MIN_DELAY: '0.3'
           MAX_DELAY: '0.4'
           PAGE_LOAD_TIMEOUT: '30'
-          SHEET_WRITE_DELAY: '2.5'
+          SHEET_WRITE_DELAY: '1.0'
         run: |
           python Scraper.py
+
 
 
 
