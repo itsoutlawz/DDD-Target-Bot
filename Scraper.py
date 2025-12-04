@@ -354,20 +354,20 @@ class Sheets:
 
     def _format(self):
         try:
-            self.ws.format("A:R", {"backgroundColor":{"red":1,"green":1,"blue":1},"textFormat":{"fontFamily":"Bona Nova SC","fontSize":8,"bold":False}})
-            self.ws.format("A1:R1", {"textFormat":{"bold":False,"fontSize":9,"fontFamily":"Bona Nova SC"},"horizontalAlignment":"CENTER","backgroundColor":{"red":1.0,"green":0.6,"blue":0.0}})
+            self.ws.format("A:R", {"backgroundColor":{"red":1,"green":1,"blue":1},"textFormat":{"fontFamily":"Asimovian","fontSize":8,"bold":False}})
+            self.ws.format("A1:R1", {"textFormat":{"bold":False,"fontSize":9,"fontFamily":"Asimovian"},"horizontalAlignment":"CENTER","backgroundColor":{"red":1.0,"green":0.7,"blue":0.2}})
             self._apply_banding(self.ws, len(COLUMN_ORDER), start_row=1)
         except Exception as e:
             log_msg(f"Format failed: {e}")
         try:
-            self.target.format("A:D", {"textFormat":{"fontFamily":"Bona Nova SC","fontSize":8,"bold":False}})
-            self.target.format("A1:D1", {"textFormat":{"bold":True,"fontSize":9,"fontFamily":"Bona Nova SC"},"horizontalAlignment":"CENTER","backgroundColor":{"red":1.0,"green":0.6,"blue":0.0}})
+            self.target.format("A:D", {"textFormat":{"fontFamily":"Asimovian","fontSize":8,"bold":False}})
+            self.target.format("A1:D1", {"textFormat":{"bold":True,"fontSize":9,"fontFamily":"Asimovian"},"horizontalAlignment":"CENTER","backgroundColor":{"red":1.0,"green":0.6,"blue":0.0}})
             self._apply_banding(self.target, self.target.col_count, start_row=1)
         except Exception as e:
             log_msg(f"Target format failed: {e}")
         try:
-            self.dashboard.format("A:K", {"textFormat":{"fontFamily":"Bona Nova SC","fontSize":8,"bold":False}})
-            self.dashboard.format("A1:K1", {"textFormat":{"bold":True,"fontSize":9,"fontFamily":"Bona Nova SC"},"horizontalAlignment":"CENTER","backgroundColor":{"red":1.0,"green":0.6,"blue":0.0}})
+            self.dashboard.format("A:K", {"textFormat":{"fontFamily":"Asimovian","fontSize":8,"bold":False}})
+            self.dashboard.format("A1:K1", {"textFormat":{"bold":True,"fontSize":9,"fontFamily":"Asimovian"},"horizontalAlignment":"CENTER","backgroundColor":{"red":1.0,"green":0.6,"blue":0.0}})
             self._apply_banding(self.dashboard, self.dashboard.col_count, start_row=1)
         except Exception as e:
             log_msg(f"Dashboard format failed: {e}")
@@ -774,4 +774,5 @@ def main():
 
 if __name__=='__main__':
     main()
+
 
