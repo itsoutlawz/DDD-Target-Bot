@@ -131,23 +131,37 @@ def to_absolute_url(href:str)->str:
 
 def get_friend_status(driver) -> str:
     try:
-        page = driver.page_source.lower()   // sab lowercase for safe matching
-        text = driver.page_source           // uppercase detect karne ke liye original
+        """
+        // page ko lowercase karna safe matching ke liye zaroori
+        """
+        page = driver.page_source.lower()
 
+        """
+        // text original hi chahiye because FOLLOW / UNFOLLOW uppercase hota hai
+        """
+        text = driver.page_source
+
+        """
         // --- NOT FOLLOWING ---
-        // FOLLOW button text exists (uppercase)
+        // FOLLOW text + /follow/add/ ka matlab user ne abhi follow nahi kiya
+        """
         if 'FOLLOW' in text and '/follow/add/' in page:
             return "No"
 
+        """
         // --- FOLLOWING ---
-        // UNFOLLOW button text exists (uppercase)
+        // UNFOLLOW text + /follow/remove/ ka matlab user already follow kar raha hai
+        """
         if 'UNFOLLOW' in text and '/follow/remove/' in page:
             return "Yes"
 
-        // --- Safety fallback ---
-        // Agar text hi mil jaye to bhi enough hai
+        """
+        // --- FALLBACKS ---
+        // Agar structure badal jaye lekin text same ho to bhi detection sahi chalegi
+        """
         if 'UNFOLLOW' in text:
             return "Yes"
+
         if 'FOLLOW' in text:
             return "No"
 
@@ -155,7 +169,6 @@ def get_friend_status(driver) -> str:
 
     except Exception:
         return ""
-
 
 
 def extract_text_comment_url(href:str)->str:
@@ -792,6 +805,7 @@ def main():
 
 if __name__=='__main__':
     main()
+
 
 
 
