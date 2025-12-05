@@ -43,6 +43,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Set up ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
       - name: Run bot
         env:
           DAMADAM_USERNAME: ${{ secrets.DAMADAM_USERNAME }}
@@ -54,13 +62,30 @@ jobs:
           MAX_PROFILES: ${{ github.event.inputs.max_profiles || '0' }}
           BATCH_SIZE: ${{ github.event.inputs.batch_size || '10' }}
         run: |
-          if [ -z "$DAMADAM_USERNAME" ] || [ -z "$DAMADAM_PASSWORD" ] || [ -z "$GOOGLE_SHEET_URL" ] || [ -z "$GOOGLE_CREDENTIALS_JSON" ]; then
-            echo "❌ Error: Required environment variables are not set"
-            exit 1
-          fi
+          set -e  # Exit immediately if a command exits with a non-zero status
           
-          # Create credentials file
+          # Check required environment variables
+          for var in DAMADAM_USERNAME DAMADAM_PASSWORD GOOGLE_SHEET_URL GOOGLE_CREDENTIALS_JSON; do
+            if [ -z "${!var}" ]; then
+              echo "❌ Error: $var is not set"
+              exit 1
+            fi
+          done
+          
+          echo "🔧 Setting up environment..."
+          
+          # Create and secure credentials file
           echo "$GOOGLE_CREDENTIALS_JSON" > credentials.json
+          chmod 600 credentials.json
+          
+          # Set up environment variables
+          export GOOGLE_APPLICATION_CREDENTIALS="$PWD/credentials.json"
+          
+          echo "🚀 Starting bot with:"
+          echo "- Max Profiles: ${MAX_PROFILES:-0}"
+          echo "- Batch Size: ${BATCH_SIZE:-10}"
           
           # Run the bot
           python Scraper.py
+          
+          echo "✅ Bot completed successfully"
