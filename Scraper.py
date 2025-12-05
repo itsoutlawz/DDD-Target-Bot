@@ -312,8 +312,8 @@ class Sheets:
     def __init__(self, client):
         self.client=client; self.ss=client.open_by_url(SHEET_URL)
         self.tags_mapping={}
-        self.ws=self._get_or_create("ProfilesTarget", cols=len(COLUMN_ORDER))
-        self.target=self._get_or_create("Target", cols=4)
+        self.ws=self._get_or_create("ProfilesTarget", cols=len(COLUMN_ORDER), rows=10000)
+        self.target=self._get_or_create("Target", cols=4, rows=5000)
         self.tags_sheet=self._get_sheet_if_exists("Tags")
         # Ensure headers for ProfilesTarget
         try:
@@ -335,7 +335,7 @@ class Sheets:
             log_msg(f"Target header init failed: {e}")
         # Dashboard worksheet
         try:
-            self.dashboard = self._get_or_create("Dashboard", cols=11)
+            self.dashboard = self._get_or_create("Dashboard", cols=11, rows=5000)
             dvals = self.dashboard.get_all_values()
             expected = ["Run#","Timestamp","Profiles","Success","Failed","New","Updated","Unchanged","Trigger","Start","End"]
             if not dvals or dvals[0] != expected:
@@ -344,7 +344,7 @@ class Sheets:
             log_msg(f"Dashboard setup failed: {e}")
         self._format(); self._load_existing(); self._load_tags_mapping(); self.normalize_target_statuses()
 
-    def _get_or_create(self,name,cols=20,rows=1000):
+    def _get_or_create(self,name,cols=20,rows=10000):
         try: return self.ss.worksheet(name)
         except WorksheetNotFound:
             return self.ss.add_worksheet(title=name, rows=rows, cols=cols)
