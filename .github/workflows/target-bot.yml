@@ -2,7 +2,7 @@ name: "DamDama Target Bot ✨"
 
 on:
   schedule:
-    - cron: '0 */1 * * *'   # Har 1 ghantay, bilkul HH:00 par
+    - cron: '0 */1 * * *'   # Every hour at HH:00
   workflow_dispatch:
     inputs:
       max_profiles:
@@ -18,6 +18,21 @@ jobs:
   run-jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 59
+
+    # Define all environment variables at the job level
+    env:
+      DAMADAM_USERNAME: ${{ secrets.DAMADAM_USERNAME }}
+      DAMADAM_PASSWORD: ${{ secrets.DAMADAM_PASSWORD }}
+      DAMADAM_USERNAME_2: ${{ secrets.DAMADAM_USERNAME_2 }}
+      DAMADAM_PASSWORD_2: ${{ secrets.DAMADAM_PASSWORD_2 }}
+      GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
+      GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+      MAX_PROFILES_PER_RUN: ${{ github.event.inputs.max_profiles != '' && github.event.inputs.max_profiles || '0' }}
+      BATCH_SIZE: ${{ github.event.inputs.batch_size != '' && github.event.inputs.batch_size || '10' }}
+      MIN_DELAY: '0.3'
+      MAX_DELAY: '0.4'
+      PAGE_LOAD_TIMEOUT: '30'
+      SHEET_WRITE_DELAY: '1.0'
 
     steps:
       - name: Checkout
@@ -41,39 +56,22 @@ jobs:
       - name: Setup Chromedriver
         uses: nanasess/setup-chromedriver@v2
 
-      - name: Prepare Google Credentials (optional)
-        env:
-          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
-          GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
+      - name: Prepare Google Credentials
+        if: env.GOOGLE_SHEET_URL != ''
         run: |
-          if [ -n "$GOOGLE_SHEET_URL" ]; then
-            if [ -z "$GOOGLE_CREDENTIALS_JSON" ]; then
-              echo "❌ GOOGLE_SHEET_URL is set but GOOGLE_CREDENTIALS_JSON is missing." && exit 1
-            fi
-            printf '%s' "$GOOGLE_CREDENTIALS_JSON" > google_credentials.json
-            chmod 600 google_credentials.json
-            echo "GOOGLE_APPLICATION_CREDENTIALS=${{ github.workspace }}/google_credentials.json" >> $GITHUB_ENV
-          else
-            echo "ℹ️ No sheet URL set - skipping credentials."
+          if [ -z "$GOOGLE_CREDENTIALS_JSON" ]; then
+            echo "❌ GOOGLE_SHEET_URL is set but GOOGLE_CREDENTIALS_JSON is missing."
+            exit 1
           fi
+          echo "$GOOGLE_CREDENTIALS_JSON" > google_credentials.json
+          chmod 600 google_credentials.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/google_credentials.json" >> $GITHUB_ENV
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
 
       - name: Run Target Bot
         env:
-          DAMADAM_USERNAME: ${{ secrets.DAMADAM_USERNAME }}
-          DAMADAM_PASSWORD: ${{ secrets.DAMADAM_PASSWORD }}
-          DAMADAM_USERNAME_2: ${{ secrets.DAMADAM_USERNAME_2 }}
-          DAMADAM_PASSWORD_2: ${{ secrets.DAMADAM_PASSWORD_2 }}
-          GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
-          MAX_PROFILES_PER_RUN: ${{ github.event.inputs.max_profiles != '' && github.event.inputs.max_profiles || '0' }}
-          BATCH_SIZE: ${{ github.event.inputs.batch_size != '' && github.event.inputs.batch_size || '00' }}
-          MIN_DELAY: '0.3'
-          MAX_DELAY: '0.4'
-          PAGE_LOAD_TIMEOUT: '30'
-          SHEET_WRITE_DELAY: '1.0'
+          # These are already defined at the job level, but can be overridden here if needed
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
           python Scraper.py
-
-
-
-
-
